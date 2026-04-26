@@ -1,7 +1,15 @@
 const { Telegraf } = require("telegraf");
 const fs = require("fs");
 
-const bot = new Telegraf(process.env.BOT_TOKEN);
+// 🔑 Verificar token
+const BOT_TOKEN = process.env.BOT_TOKEN;
+
+if (!BOT_TOKEN) {
+  console.error("❌ BOT_TOKEN no encontrado");
+  process.exit(1);
+}
+
+const bot = new Telegraf(BOT_TOKEN);
 
 const dbFile = "db.json";
 
@@ -37,8 +45,8 @@ bot.start((ctx) => {
         db[referrerId].referidos.push(userId);
       }
 
-      console.log(`Nuevo referido: ${userId}`);
-      console.log(`Invitado por: ${referrerId}`);
+      console.log(`✅ Nuevo referido: ${userId}`);
+      console.log(`👤 Invitado por: ${referrerId}`);
     }
 
     saveDB(db);
@@ -51,11 +59,15 @@ bot.command("referidos", (ctx) => {
   const db = loadDB();
   const userId = ctx.from.id.toString();
 
-  if (!db[userId]) return ctx.reply("No tienes referidos");
+  if (!db[userId]) {
+    return ctx.reply("🐱 No tienes referidos aún");
+  }
 
   ctx.reply(
-    `🐱 Referidos: ${db[userId].referidos.length}\n\n${db[userId].referidos.join("\n")}`
+    `🐱 Referidos: ${db[userId].referidos.length}\n\n${db[userId].referidos.join("\n") || "Sin usuarios"}`
   );
 });
 
 bot.launch();
+
+console.log("🚀 Bot iniciado correctamente");
